@@ -1,0 +1,18 @@
+CREATE TABLE categories_tmp (
+  id        INTEGER          PRIMARY KEY AUTOINCREMENT,
+  parent_id INTEGER,
+  name      TEXT    NOT NULL,
+  icon      INTEGER NOT NULL,
+  color     INTEGER NOT NULL,
+  analyzed  BOOLEAN DEFAULT TRUE
+);
+
+INSERT INTO categories_tmp (id, parent_id, name, icon, color) SELECT * FROM categories;
+
+SELECT * FROM categories_tmp;
+
+DROP TABLE categories;
+
+ALTER TABLE categories_tmp RENAME TO categories;
+
+SELECT * FROM categories;

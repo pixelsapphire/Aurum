@@ -1,0 +1,69 @@
+import 'package:aurum/data/objects/category.dart';
+import 'package:aurum/ui/widgets/money_label.dart';
+import 'package:aurum/util/extensions.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+
+class CategoryDivisionChart extends StatefulWidget {
+  final Map<Category, double> data;
+  final String totalLabel;
+
+  const CategoryDivisionChart({super.key, required this.data, required this.totalLabel});
+
+  @override
+  State<CategoryDivisionChart> createState() => _CategoryDivisionChartState();
+}
+
+class _CategoryDivisionChartState extends State<CategoryDivisionChart> {
+  Category? _selectedCategory;
+
+  @override
+  Widget build(BuildContext context) => widget.data.entries.toList().op(
+        (entries) => Stack(
+          children: [
+            SfCircularChart(
+              palette: entries
+                  .map((e) => e.key.color.withValue(_selectedCategory != null && e.key != _selectedCategory ? 0.5 : 1))
+                  .nullIfEmpty()
+                  ?.toList(),
+              series: [
+                DoughnutSeries<MapEntry<Category, double>, String>(
+                  dataSource: entries,
+                  xValueMapper: (entry, _) => entry.key.name,
+                  yValueMapper: (entry, _) => entry.value,
+                  radius: '100%',
+                  innerRadius: '70%',
+                  animationDuration: 0,
+                  onPointTap: (slice) => setState(() {
+                    final tappedCategory = slice.pointIndex != null ? entries[slice.pointIndex!].key : null;
+                    _selectedCategory = _selectedCategory == tappedCategory ? null : tappedCategory;
+                  }),
+                ),
+              ],
+            ),
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _selectedCategory?.name ?? widget.totalLabel,
+                    style: TextStyle(
+                      color: CupertinoDynamicColor.resolve(CupertinoColors.secondaryLabel, context),
+                      fontSize: 20,
+                    ),
+                  ),
+                  MoneyLabel(
+                    _selectedCategory != null
+                        ? widget.data[_selectedCategory]?.abs() ?? 0
+                        : widget.data.values.nullIfEmpty()?.reduce((a, b) => a + b).abs() ?? 0,
+                    suffix: ' PLN',
+                    style: const TextStyle(fontSize: 30),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+}
