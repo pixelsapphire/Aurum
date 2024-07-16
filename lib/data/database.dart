@@ -229,14 +229,15 @@ class AurumDatabase {
                 if (record.type == type && period.contains(record.time)) {
                   for (final fragment in record.fragments) {
                     final category = categories_.singleWhere((c) => c.id == fragment.categoryId);
-                    if (!category.analyzed) continue;
+                    if (!CategoriesService.isAnalyzed(category, categories_)) continue;
                     final infraCategory = CategoriesService.getInfraCategory(category, categories_);
                     sumsByCategory[infraCategory] = (sumsByCategory[infraCategory] ?? 0) + fragment.amount;
                   }
                 }
               }
             }
-            return LinkedHashMap.fromEntries(sumsByCategory.entries.sorted((a, b) => a.value.abs().compareTo(b.value.abs())));
+            return LinkedHashMap.fromEntries(
+                sumsByCategory.entries.where((e) => e.value != 0).sorted((a, b) => a.value.abs().compareTo(b.value.abs())));
           },
         ),
       );
