@@ -136,6 +136,8 @@ extension NumberExt on num {
   double roundToPlaces(int decimalPlaces) => (this * math.pow(10, decimalPlaces)).roundToDouble() / math.pow(10, decimalPlaces);
 
   bool get isPositive => this > 0;
+
+  String asPercent([int decimalPlaces = 0]) => '${(this * 100).roundToPlaces(decimalPlaces)}%';
 }
 
 extension ObjectExt<E> on E {
