@@ -61,6 +61,9 @@ extension IterableExt<E> on Iterable<E> {
 
   Map<E, V> toMap<V>(V Function(E) mapper) => Map.fromEntries(map((key) => MapEntry(key, mapper(key))));
 
+  String toMultilineString({String Function(E)? mapper}) =>
+      '[\n${map((element) => '  ${mapper?.call(element) ?? element}').join('\n')}\n]';
+
   bool equalsDeep(Iterable<E> other) {
     if (identical(this, other)) return true;
     if (length != other.length) return false;
@@ -80,8 +83,9 @@ extension ListExt<E> on List<E> {
   }
 }
 
-extension MapExt on Map {
-  String toMultilineString() => '{\n${entries.map((entry) => '${entry.key}: ${entry.value}').join('\n')}\n}';
+extension MapExt<K, V> on Map<K, V> {
+  String toMultilineString({String Function(K)? keyMapper, String Function(V)? valueMapper}) =>
+      '{\n${entries.map((entry) => '  ${keyMapper?.call(entry.key) ?? entry.key}: ${valueMapper?.call(entry.value) ?? entry.value}').join('\n')}\n}';
 }
 
 extension DateTimeExt on DateTime {
