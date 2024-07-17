@@ -215,9 +215,9 @@ class AurumDatabase {
       );
 
   static AurumDerivedValue<LinkedHashMap<Category, double>> _recordSumsByCategory(
-          RecordType type, TimePeriod period, Category? root) =>
+          RecordType type, TimeConstraint constraint, Category? root) =>
       GlobalCache.getOrPut(
-        [_recordSumsByCategory, type, period],
+        [_recordSumsByCategory, type, constraint],
         () => AurumDerivedValue(
           dependencies: [categories, records],
           getter: () {
@@ -226,7 +226,7 @@ class AurumDatabase {
             final Map<Category, double> sumsByCategory = {};
             if (categories_ != null && records_ != null) {
               for (final record in records_) {
-                if (record.type == type && period.contains(record.time)) {
+                if (record.type == type && constraint.contains(record.time)) {
                   for (final fragment in record.fragments) {
                     final category = categories_.singleWhere((c) => c.id == fragment.categoryId);
                     if (!CategoriesService.isAnalyzed(category, categories_)) continue;
@@ -242,9 +242,9 @@ class AurumDatabase {
         ),
       );
 
-  static AurumDerivedValue<LinkedHashMap<Category, double>> expensesByCategory(TimePeriod period) =>
-      _recordSumsByCategory(RecordType.expense, period, null);
+  static AurumDerivedValue<LinkedHashMap<Category, double>> expensesByCategory(TimeConstraint constraint) =>
+      _recordSumsByCategory(RecordType.expense, constraint, null);
 
-  static AurumDerivedValue<LinkedHashMap<Category, double>> incomesByCategory(TimePeriod period) =>
-      _recordSumsByCategory(RecordType.income, period, null);
+  static AurumDerivedValue<LinkedHashMap<Category, double>> incomesByCategory(TimeConstraint constraint) =>
+      _recordSumsByCategory(RecordType.income, constraint, null);
 }
