@@ -12,6 +12,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   diacritic: ^0.1.5
   flutter_colorpicker: ^1.1.0
+  flutter_staggered_grid_view: ^0.7.0
   intl: ^0.19.0
   path: ^1.9.0
   provider: ^6.1.2

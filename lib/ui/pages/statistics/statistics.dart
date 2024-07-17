@@ -7,6 +7,7 @@ import 'package:aurum/ui/widgets/titled_card.dart';
 import 'package:aurum/util/extensions.dart';
 import 'package:aurum/util/time_period.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class Statistics extends StatelessWidget {
   const Statistics({super.key});
@@ -59,21 +60,14 @@ class Statistics extends StatelessWidget {
   @override
   Widget build(BuildContext context) => PageBase(
         navigationBar: const CupertinoNavigationBar(middle: Text('Statistics')),
-        builtInScrollView: false,
-        child: Column(
-          children: [
-            GridView(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 2 : 4,
-                childAspectRatio: 1.1,
-              ),
-              children: [
-                _buildAverage(context),
-              ],
-            ),
-          ],
+        child: MasonryGridView.count(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 2 : 4,
+          itemCount: 1,
+          itemBuilder: (context, index) => {
+            0: _buildAverage(context),
+          }[index]!,
         ),
       );
 }
