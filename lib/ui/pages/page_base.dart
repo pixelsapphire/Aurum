@@ -10,6 +10,8 @@ class PageBase extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CupertinoPageScaffold(
         navigationBar: navigationBar,
-        child: SafeArea(child: builtInScrollView ? SingleChildScrollView(child: child) : child),
+        child: SafeArea(
+          child: builtInScrollView ? SingleChildScrollView(physics: const BouncingScrollPhysics(), child: child) : child,
+        ),
       );
 }
