@@ -8,6 +8,7 @@ import 'package:aurum/ui/widgets/dialogs/modal_icon_input.dart';
 import 'package:aurum/ui/widgets/dialogs/modal_money_input.dart';
 import 'package:aurum/ui/widgets/dialogs/modal_text_input.dart';
 import 'package:aurum/ui/widgets/icons.dart';
+import 'package:aurum/ui/widgets/list_item.dart';
 import 'package:aurum/util/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -47,18 +48,9 @@ class _AccountEditorState extends State<AccountEditor> {
     _changed = true;
   }
 
-  Widget _nameTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Name'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(_name, style: TextStyle(color: AurumColors.foregroundSecondary(context))),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
+  Widget _nameTile(BuildContext context) => CupertinoListItem.basic(
+        label: 'Name',
+        value: _name,
         onTap: () => showCupertinoModalPopup(
           context: context,
           barrierDismissible: false,
@@ -70,18 +62,10 @@ class _AccountEditorState extends State<AccountEditor> {
         ),
       );
 
-  Widget _iconTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Icon'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: SquareIcon(background: _color, child: Icon(_icon)),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
+  Widget _iconTile(BuildContext context) => CupertinoListItem.custom(
+        label: 'Icon',
+        trailing: SquareIcon(background: _color, child: Icon(_icon)),
+        chevron: true,
         onTap: () => showCupertinoModalPopup(
           context: context,
           barrierDismissible: false,
@@ -111,21 +95,9 @@ class _AccountEditorState extends State<AccountEditor> {
         ),
       );
 
-  Widget _balanceTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Initial balance'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(
-                '${_initialBalance.toStringAsFixed(2)} PLN',
-                style: TextStyle(color: AurumColors.foregroundSecondary(context)),
-              ),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
+  Widget _balanceTile(BuildContext context) => CupertinoListItem.basic(
+        label: 'Initial balance',
+        value: '${_initialBalance.toStringAsFixed(2)} PLN',
         onTap: () => showCupertinoModalPopup(
           context: context,
           barrierDismissible: false,
@@ -137,8 +109,8 @@ class _AccountEditorState extends State<AccountEditor> {
         ),
       );
 
-  Widget _assetTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Asset'),
+  Widget _assetTile(BuildContext context) => CupertinoListItem.custom(
+        label: 'Asset',
         trailing: CupertinoSwitch(
           activeColor: CupertinoColors.systemGreen,
           value: _asset,
@@ -150,10 +122,10 @@ class _AccountEditorState extends State<AccountEditor> {
         AurumDerivedValueBuilder(
           value: AurumDatabase.accountBalance(widget.account!),
           builder: (context, currentBalance) => currentBalance == null
-              ? const CupertinoListTile(title: Text('Set current balance'))
-              : CupertinoListTile(
-                  title: const Text('Set current balance'),
-                  trailing: Icon(CupertinoIcons.pencil, color: AurumColors.foregroundPrimary(context)),
+              ? const CupertinoListItem.basic(label: 'Set current balance')
+              : CupertinoListItem.icon(
+                  label: 'Set current balance',
+                  icon: CupertinoIcons.pencil,
                   onTap: () => showCupertinoModalPopup(
                     context: context,
                     barrierDismissible: false,
@@ -169,9 +141,10 @@ class _AccountEditorState extends State<AccountEditor> {
                   ),
                 ),
         ),
-        CupertinoListTile(
-          title: const Text('Delete account', style: TextStyle(color: CupertinoColors.systemRed)),
-          trailing: const Icon(CupertinoIcons.delete, color: CupertinoColors.systemRed),
+        CupertinoListItem.icon(
+          label: 'Delete account',
+          icon: CupertinoIcons.delete,
+          isDestructiveAction: true,
           onTap: () => Navigator.of(context).push(
             CupertinoModalPopupRoute(
               builder: (context) => CupertinoActionSheet(

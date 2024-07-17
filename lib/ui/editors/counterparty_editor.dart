@@ -1,12 +1,11 @@
 import 'package:aurum/data/database.dart';
 import 'package:aurum/data/objects/counterparty.dart';
-import 'package:aurum/ui/theme.dart';
 import 'package:aurum/ui/editors/editor_base.dart';
 import 'package:aurum/ui/widgets/dialogs/basic_dialogs.dart';
 import 'package:aurum/ui/widgets/dialogs/modal_text_input.dart';
+import 'package:aurum/ui/widgets/list_item.dart';
 import 'package:aurum/util/extensions.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:pull_down_button/pull_down_button.dart';
 
 class CounterpartyEditor extends StatefulWidget {
   final Counterparty? counterparty;
@@ -39,51 +38,20 @@ class _CounterpartyEditorState extends State<CounterpartyEditor> {
     _changed = true;
   }
 
-  Widget _typeTile(BuildContext context) {
-    final GlobalKey selectionKey = GlobalKey();
-    return CupertinoListTile(
-      title: const Text('Type'),
-      trailing: Row(
-        key: selectionKey,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Text(_type.name.capitalize(), style: TextStyle(color: AurumColors.foregroundSecondary(context))),
-          ),
-          const CupertinoListTileChevron(),
-        ],
-      ),
-      onTap: () => showPullDownMenu(
-        context: context,
-        items: CounterpartyType.values
-            .map((type) => PullDownMenuItem(
-                  title: type.name.capitalize(),
-                  icon: type.icon,
-                  onTap: () => setState(() {
-                    _type = type;
-                    if (_type == CounterpartyType.private) _identification = '';
-                  }),
-                ))
-            .toList(),
-        position: (selectionKey.currentContext!.findRenderObject() as RenderBox).bottomRight.translate(0, 8),
-        scrollController: ScrollController(),
-      ),
-    );
-  }
+  Widget _typeTile(BuildContext context) => CupertinoListItem.dropdown(
+        label: 'Type',
+        value: _type.name.capitalize(),
+        dropdownItems: CounterpartyType.values,
+        itemBuilder: (type) => CupertinoDropdownItem(title: type.name.capitalize(), icon: type.icon),
+        onSelected: (type) => setState(() {
+          _type = type;
+          if (_type == CounterpartyType.private) _identification = '';
+        }),
+      );
 
-  Widget _fullNameTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Full name'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(_name, style: TextStyle(color: AurumColors.foregroundSecondary(context))),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
+  Widget _fullNameTile(BuildContext context) => CupertinoListItem.basic(
+        label: 'Full name',
+        value: _name,
         onTap: () => showCupertinoModalPopup(
           context: context,
           barrierDismissible: false,
@@ -95,18 +63,9 @@ class _CounterpartyEditorState extends State<CounterpartyEditor> {
         ),
       );
 
-  Widget _aliasTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Alias'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(_alias, style: TextStyle(color: AurumColors.foregroundSecondary(context))),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
+  Widget _aliasTile(BuildContext context) => CupertinoListItem.basic(
+        label: 'Alias',
+        value: _alias,
         onTap: () => showCupertinoModalPopup(
           context: context,
           barrierDismissible: false,
@@ -118,18 +77,9 @@ class _CounterpartyEditorState extends State<CounterpartyEditor> {
         ),
       );
 
-  Widget _identificationNumberTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Identification number'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(_identification, style: TextStyle(color: AurumColors.foregroundSecondary(context))),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
+  Widget _identificationNumberTile(BuildContext context) => CupertinoListItem.basic(
+        label: 'Identification number',
+        value: _identification,
         onTap: () => showCupertinoModalPopup(
           context: context,
           barrierDismissible: false,
@@ -142,9 +92,10 @@ class _CounterpartyEditorState extends State<CounterpartyEditor> {
       );
 
   List<Widget> _editActions(BuildContext context) => [
-        CupertinoListTile(
-          title: const Text('Delete counterparty', style: TextStyle(color: CupertinoColors.systemRed)),
-          trailing: const Icon(CupertinoIcons.delete, color: CupertinoColors.systemRed),
+        CupertinoListItem.icon(
+          label: 'Delete counterparty',
+          icon: CupertinoIcons.delete,
+          isDestructiveAction: true,
           onTap: () => Navigator.of(context).push(
             CupertinoModalPopupRoute(
               builder: (context) => CupertinoActionSheet(

@@ -13,12 +13,11 @@ import 'package:aurum/ui/widgets/dialogs/basic_dialogs.dart';
 import 'package:aurum/ui/widgets/dialogs/modal_datetime_input.dart';
 import 'package:aurum/ui/widgets/dialogs/modal_money_input.dart';
 import 'package:aurum/ui/widgets/dialogs/modal_text_input.dart';
-import 'package:aurum/ui/widgets/future_or_builder.dart';
 import 'package:aurum/ui/widgets/icons.dart';
+import 'package:aurum/ui/widgets/list_item.dart';
 import 'package:aurum/util/extensions.dart';
 import 'package:aurum/util/pointer.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:pull_down_button/pull_down_button.dart';
 
 class RecordFragmentSection extends StatelessWidget {
   final RecordFragment fragment;
@@ -38,64 +37,26 @@ class RecordFragmentSection extends StatelessWidget {
     this.onRemove,
   });
 
-  Widget _categoryTile(BuildContext context) {
-    final GlobalKey selectionKey = GlobalKey();
-    return AurumCollectionBuilder(
-      collection: AurumDatabase.categories,
-      onEmpty: const CupertinoListTile(title: Text('Category')),
-      builder: (context, categories) => CupertinoListTile(
-        title: const Text('Category'),
-        trailing: Row(
-          key: selectionKey,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: FutureOrBuilder<Category>(
-                future: cachedCategory ?? AurumDatabase.categories.getById(fragment.categoryId),
-                builder: (context, snapshot) => Text(
-                  snapshot.hasData ? snapshot.data!.name : 'Select category',
-                  style: TextStyle(color: AurumColors.foregroundSecondary(context)),
-                ),
-              ),
-            ),
-            const CupertinoListTileChevron(),
-          ],
+  Widget _categoryTile(BuildContext context) => AurumCollectionBuilder(
+        collection: AurumDatabase.categories,
+        onEmpty: const CupertinoListItem.basic(label: 'Category'),
+        builder: (context, categories) => CupertinoListItem.dropdown(
+          label: 'Category',
+          value: cachedCategory?.name ?? 'Select category',
+          dropdownItems: categories.sorted(CategoriesService.compareNames),
+          itemBuilder: (category) => CupertinoDropdownItem(
+            title: category.name,
+            subtitle: CategoriesService.getParentPath(category, categories, separator: ' / ')
+                .op((path) => path.isNotEmpty ? 'in $path' : null),
+            icon: category.icon,
+          ),
+          onSelected: (category) => onCategoryChanged(category),
         ),
-        onTap: () => showPullDownMenu(
-          context: context,
-          items: categories
-              .sorted(CategoriesService.compareNames)
-              .map((category) => PullDownMenuItem(
-                    title: category.name,
-                    subtitle: CategoriesService.getParentPath(category, categories, separator: ' / ')
-                        .op((path) => path.isNotEmpty ? 'in $path' : null),
-                    icon: category.icon,
-                    onTap: () => onCategoryChanged(category),
-                  ))
-              .toList(),
-          position: (selectionKey.currentContext!.findRenderObject() as RenderBox).bottomRight.translate(0, 8),
-          scrollController: ScrollController(),
-        ),
-      ),
-    );
-  }
+      );
 
-  Widget _amountTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Amount'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(
-                '${fragment.amount.toStringAsFixed(2)} PLN',
-                style: TextStyle(color: AurumColors.foregroundSecondary(context)),
-              ),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
+  Widget _amountTile(BuildContext context) => CupertinoListItem.basic(
+        label: 'Amount',
+        value: '${fragment.amount.toStringAsFixed(2)} PLN',
         onTap: () => showCupertinoModalPopup(
           context: context,
           barrierDismissible: false,
@@ -187,146 +148,67 @@ class _RecordEditorState extends State<RecordEditor> {
       RecordType.income: 'Income',
       RecordType.ownTransfer: 'Own transfer',
     };
-    final GlobalKey selectionKey = GlobalKey();
-    return CupertinoListTile(
-      title: const Text('Type'),
-      trailing: Row(
-        key: selectionKey,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Text(typeNames[_type]!, style: TextStyle(color: AurumColors.foregroundSecondary(context))),
-          ),
-          const CupertinoListTileChevron(),
-        ],
-      ),
-      onTap: () => showPullDownMenu(
-        context: context,
-        items: RecordType.values
-            .map((type) => PullDownMenuItem(
-                  title: typeNames[type]!,
-                  icon: type.icon,
-                  onTap: () => setState(() {
-                    _type = type;
-                    final int sign = type == RecordType.expense ? -1 : 1;
-                    for (int i = 0; i < _fragments.length; ++i) {
-                      _fragments[i] = _fragments[i].copyWith(amount: sign * _fragments[i].amount.abs());
-                    }
-                  }),
-                ))
-            .toList(),
-        position: (selectionKey.currentContext!.findRenderObject() as RenderBox).bottomRight.translate(0, 8),
-        scrollController: ScrollController(),
-      ),
+    return CupertinoListItem.dropdown(
+      label: 'Type',
+      value: typeNames[_type]!,
+      dropdownItems: RecordType.values,
+      itemBuilder: (type) => CupertinoDropdownItem(title: typeNames[type]!, icon: type.icon),
+      onSelected: (type) => setState(() {
+        _type = type;
+        final int sign = type == RecordType.expense ? -1 : 1;
+        for (int i = 0; i < _fragments.length; ++i) {
+          _fragments[i] = _fragments[i].copyWith(amount: sign * _fragments[i].amount.abs());
+        }
+      }),
     );
   }
 
-  Widget _accountTile(BuildContext context, String title, Pointer<String> accountNamePtr) {
-    final GlobalKey selectionKey = GlobalKey();
-    return AurumCollectionBuilder(
-      collection: AurumDatabase.accounts,
-      onEmpty: CupertinoListTile(title: Text(title)),
-      builder: (context, accounts) => CupertinoListTile(
-        title: Text(title),
-        trailing: Row(
-          key: selectionKey,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(
-                accountNamePtr.value.isEmpty ? 'Select account' : accountNamePtr.value,
-                style: TextStyle(color: AurumColors.foregroundSecondary(context)),
-              ),
+  Widget _accountTile(BuildContext context, String title, Pointer<String> accountNamePtr) => AurumCollectionBuilder(
+        collection: AurumDatabase.accounts,
+        onEmpty: CupertinoListItem.basic(label: title),
+        builder: (context, accounts) => CupertinoListItem.dropdown(
+          label: title,
+          value: accountNamePtr.value.isEmpty ? 'Select account' : accountNamePtr.value,
+          dropdownItems: accounts,
+          itemBuilder: (account) => CupertinoDropdownItem(
+            title: account.name,
+            iconWidget: FittedBox(
+              fit: BoxFit.contain,
+              child: SquareIcon(padding: 2, borderRadius: 6, background: account.color, child: Icon(account.icon)),
             ),
-            const CupertinoListTileChevron(),
-          ],
+          ),
+          onSelected: (account) => setState(() => accountNamePtr.value = account.name),
         ),
-        onTap: () => showPullDownMenu(
-          context: context,
-          items: accounts
-              .map((account) => PullDownMenuItem(
-                    title: account.name,
-                    iconWidget: FittedBox(
-                      fit: BoxFit.contain,
-                      child: SquareIcon(padding: 2, borderRadius: 6, background: account.color, child: Icon(account.icon)),
-                    ),
-                    onTap: () => setState(() => accountNamePtr.value = account.name),
-                  ))
-              .toList(),
-          position: (selectionKey.currentContext!.findRenderObject() as RenderBox).bottomRight.translate(0, 8),
-          scrollController: ScrollController(),
-        ),
-      ),
-    );
-  }
+      );
 
   Widget _counterpartyTile(
     BuildContext context,
     String title,
     Pointer<FutureOr<Counterparty?>> counterpartyPtr,
     Pointer<bool> selectedPtr,
-  ) {
-    final GlobalKey selectionKey = GlobalKey();
-    return AurumCollectionBuilder(
-      collection: AurumDatabase.counterparties,
-      onEmpty: CupertinoListTile(title: Text(title)),
-      builder: (context, counterparties) => CupertinoListTile(
-        title: Text(title),
-        trailing: Row(
-          key: selectionKey,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: FutureOrBuilder<Counterparty?>(
-                future: counterpartyPtr.valueOr(Future.value(null)),
-                builder: (context, snapshot) => Text(
-                  snapshot.hasData ? snapshot.data!.aliasOrName : 'Select counterparty',
-                  style: TextStyle(color: AurumColors.foregroundSecondary(context)),
-                ),
-              ),
-            ),
-            const CupertinoListTileChevron(),
-          ],
+  ) =>
+      AurumCollectionBuilder(
+        collection: AurumDatabase.counterparties,
+        onEmpty: CupertinoListItem.basic(label: title),
+        builder: (context, counterparties) => CupertinoListItem.dropdown(
+          label: title,
+          value: counterpartyPtr.isNull ? 'Select counterparty' : counterpartyPtr.value.map((c) => c!.aliasOrName),
+          dropdownItems: counterparties.sorted(CounterpartiesService.compareLexicographically),
+          itemBuilder: (counterparty) => CupertinoDropdownItem(
+            title: counterparty.aliasOrName,
+            subtitle: counterparty.alias == null ? null : counterparty.name,
+            icon: counterparty.type.icon,
+          ),
+          onSelected: (counterparty) => setState(() {
+            counterpartyPtr.value = counterparty;
+            selectedPtr.value = true;
+          }),
         ),
-        onTap: () => showPullDownMenu(
-          context: context,
-          items: counterparties
-              .sorted(CounterpartiesService.compareLexicographically)
-              .map((counterparty) => PullDownMenuItem(
-                    title: counterparty.aliasOrName,
-                    subtitle: counterparty.alias == null ? null : counterparty.name,
-                    icon: counterparty.type.icon,
-                    onTap: () => setState(() {
-                      counterpartyPtr.value = counterparty;
-                      selectedPtr.value = true;
-                    }),
-                  ))
-              .toList(),
-          position: (selectionKey.currentContext!.findRenderObject() as RenderBox).bottomRight.translate(0, 8),
-          scrollController: ScrollController(),
-        ),
-      ),
-    );
-  }
+      );
 
-  Widget _dateTimeTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Time'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(
-                _time.toFullString(),
-                style: TextStyle(color: AurumColors.foregroundSecondary(context)),
-              ),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
+  Widget _dateTimeTile(BuildContext context) => CupertinoListItem.basic(
+        label: 'Time',
+        value: _time.toFullString(),
         onTap: () => showCupertinoModalPopup(
           context: context,
           builder: (context) => ModalDateTimeInput(
@@ -337,18 +219,9 @@ class _RecordEditorState extends State<RecordEditor> {
         ),
       );
 
-  Widget _noteTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Note'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(_note, style: TextStyle(color: AurumColors.foregroundSecondary(context))),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
+  Widget _noteTile(BuildContext context) => CupertinoListItem.basic(
+        label: 'Note',
+        value: _note,
         onTap: () => showCupertinoModalPopup(
           context: context,
           barrierDismissible: false,
@@ -363,23 +236,24 @@ class _RecordEditorState extends State<RecordEditor> {
   Widget _editActions(BuildContext context) => CupertinoListSection.insetGrouped(
         hasLeading: false,
         children: [
-          CupertinoListTile(
-            title: const Text('Add category division'),
-            trailing: Icon(CupertinoIcons.create, color: AurumColors.foregroundPrimary(context)),
+          CupertinoListItem.icon(
+            label: 'Add category division',
+            icon: CupertinoIcons.create,
             onTap: () => setState(() => _fragments.add(RecordFragment.empty())),
           ),
           if (widget.record != null) ...[
-            CupertinoListTile(
-              title: const Text('Duplicate record'),
-              trailing: Icon(CupertinoIcons.plus_square_on_square, color: AurumColors.foregroundPrimary(context)),
+            CupertinoListItem.icon(
+              label: 'Duplicate record',
+              icon: CupertinoIcons.plus_square_on_square,
               onTap: () => AurumDatabase.records
                   .insert(RecordsService.clone(widget.record!))
                   .then((_) => Navigator.of(context).pop(), onError: (error) => showDatabaseError(context, error)),
             ),
             if (widget.record!.transactionId != null)
-              CupertinoListTile(
-                title: const Text('Remove from transaction', style: TextStyle(color: CupertinoColors.systemRed)),
-                trailing: const Icon(CupertinoIcons.link, color: CupertinoColors.systemRed),
+              CupertinoListItem.icon(
+                label: 'Remove from transaction',
+                icon: CupertinoIcons.link,
+                isDestructiveAction: true,
                 onTap: () => Navigator.of(context).push(
                   CupertinoModalPopupRoute(
                     builder: (context) => CupertinoActionSheet(
@@ -404,9 +278,10 @@ class _RecordEditorState extends State<RecordEditor> {
                   ),
                 ),
               ),
-            CupertinoListTile(
-              title: const Text('Delete record', style: TextStyle(color: CupertinoColors.systemRed)),
-              trailing: const Icon(CupertinoIcons.delete, color: CupertinoColors.systemRed),
+            CupertinoListItem.icon(
+              label: 'Delete record',
+              icon: CupertinoIcons.delete,
+              isDestructiveAction: true,
               onTap: () => Navigator.of(context).push(
                 CupertinoModalPopupRoute(
                   builder: (context) => CupertinoActionSheet(
