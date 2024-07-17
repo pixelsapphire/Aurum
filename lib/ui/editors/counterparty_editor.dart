@@ -3,10 +3,10 @@ import 'package:aurum/data/objects/counterparty.dart';
 import 'package:aurum/ui/theme.dart';
 import 'package:aurum/ui/editors/editor_base.dart';
 import 'package:aurum/ui/widgets/dialogs/basic_dialogs.dart';
-import 'package:aurum/ui/widgets/dialogs/modal_picker_input.dart';
 import 'package:aurum/ui/widgets/dialogs/modal_text_input.dart';
 import 'package:aurum/util/extensions.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:pull_down_button/pull_down_button.dart';
 
 class CounterpartyEditor extends StatefulWidget {
   final Counterparty? counterparty;
@@ -39,33 +39,38 @@ class _CounterpartyEditorState extends State<CounterpartyEditor> {
     _changed = true;
   }
 
-  Widget _typeTile(BuildContext context) => CupertinoListTile(
-        title: const Text('Type'),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(_type.name.capitalize(), style: TextStyle(color: AurumColors.foregroundSecondary(context))),
-            ),
-            const CupertinoListTileChevron(),
-          ],
-        ),
-        onTap: () => showCupertinoModalPopup(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => ModalPickerInput(
-            title: const Text('Counterparty type'),
-            values: CounterpartyType.values.map((type) => type.name.capitalize()).toList(),
-            initialValue: _type.name.capitalize(),
-            itemsVisible: 3,
-            onSubmit: (value) => setState(() {
-              _type = CounterpartyType.valueOf(value.toLowerCase());
-              if (_type == CounterpartyType.private) _identification = '';
-            }),
+  Widget _typeTile(BuildContext context) {
+    final GlobalKey selectionKey = GlobalKey();
+    return CupertinoListTile(
+      title: const Text('Type'),
+      trailing: Row(
+        key: selectionKey,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Text(_type.name.capitalize(), style: TextStyle(color: AurumColors.foregroundSecondary(context))),
           ),
-        ),
-      );
+          const CupertinoListTileChevron(),
+        ],
+      ),
+      onTap: () => showPullDownMenu(
+        context: context,
+        items: CounterpartyType.values
+            .map((type) => PullDownMenuItem(
+                  title: type.name.capitalize(),
+                  icon: type.icon,
+                  onTap: () => setState(() {
+                    _type = type;
+                    if (_type == CounterpartyType.private) _identification = '';
+                  }),
+                ))
+            .toList(),
+        position: (selectionKey.currentContext!.findRenderObject() as RenderBox).bottomRight.translate(0, 8),
+        scrollController: ScrollController(),
+      ),
+    );
+  }
 
   Widget _fullNameTile(BuildContext context) => CupertinoListTile(
         title: const Text('Full name'),
