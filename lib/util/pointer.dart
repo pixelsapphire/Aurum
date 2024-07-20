@@ -11,7 +11,7 @@ class Pointer<T> {
 
   T get value => _value!;
 
-  dynamic valueOr<R>(R fallback) => _value ?? fallback;
+  T valueOr(T fallback) => _value ?? fallback;
 
   void clear() => _value = null;
 
