@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:diacritic/diacritic.dart';
 import 'package:flutter/widgets.dart';
@@ -86,6 +87,10 @@ extension ListExt<E> on List<E> {
 extension MapExt<K, V> on Map<K, V> {
   String toMultilineString({String Function(K)? keyMapper, String Function(V)? valueMapper}) =>
       '{\n${entries.map((entry) => '  ${keyMapper?.call(entry.key) ?? entry.key}: ${valueMapper?.call(entry.value) ?? entry.value}').join('\n')}\n}';
+}
+
+extension FutureOrExt<T> on FutureOr<T> {
+  FutureOr<R> map<R>(R Function(T) f) => this is Future<T> ? (this as Future<T>).then(f) : f(this as T);
 }
 
 extension DateTimeExt on DateTime {
