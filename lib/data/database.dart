@@ -175,7 +175,7 @@ class AurumDatabase {
         0,
   );
 
-  static final AurumDerivedValue<LinkedHashMap<DateTime, double>> balanceOverTime = AurumDerivedValue(
+  static final AurumDerivedValue<LinkedHashMap<DateTime, double>> balanceOverTimeGrouped = AurumDerivedValue(
     dependencies: [accounts, records],
     getter: () {
       final records_ = records.value?.data;
@@ -192,6 +192,30 @@ class AurumDatabase {
         balanceOverTime[firstDay.previousDay] = accounts_.fold(0, (total, account) => total + account.initialBalance);
         for (final DateTime day in TimePeriod.untilToday(fromTime: firstDay).days()) {
           balanceOverTime[day] = (balanceOverTime[day.previousDay]! + (changeDaily[day] ?? 0)).roundToPlaces(2);
+        }
+      }
+      return balanceOverTime;
+    },
+  );
+
+  static final AurumDerivedValue<LinkedHashMap<DateTime, double>> balanceOverTime = AurumDerivedValue(
+    dependencies: [accounts, records],
+    getter: () {
+      final records_ = records.value?.data?.reversed;
+      final accounts_ = accounts.value?.data;
+      final LinkedHashMap<DateTime, double> balanceOverTime = LinkedHashMap();
+      if (records_ != null && accounts_ != null) {
+        double balance = accounts_.fold(0, (total, account) => total + account.initialBalance);
+        if (records_.isNotEmpty) balanceOverTime[records_.first.time.date.previousDay] = balance;
+        for (final record in records_) {
+          if (record.type != RecordType.ownTransfer) {
+            balance = (balance + RecordsService.totalAmount(record)).roundToPlaces(2);
+            balanceOverTime[record.time] = balance;
+          }
+        }
+        balanceOverTime[DateTime.now().date] = balance.roundToPlaces(2);
+        for (int i = 1; i < balanceOverTime.length; ++i) {
+          if (balanceOverTime.values.elementAt(i) == balanceOverTime.values.elementAt(i - 1)) balanceOverTime.removeAt(i--);
         }
       }
       return balanceOverTime;
