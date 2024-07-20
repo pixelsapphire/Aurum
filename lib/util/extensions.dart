@@ -18,6 +18,8 @@ extension RenderBoxExt on RenderBox {
 
 extension ColorExt on Color {
   Color withValue(double value) => HSVColor.fromColor(this).withValue(value).toColor();
+
+  double getValue() => HSVColor.fromColor(this).value;
 }
 
 extension IterableExt<E> on Iterable<E> {
@@ -145,6 +147,8 @@ extension NumberExt on num {
   String asPercent([int decimalPlaces = 0]) => '${(this * 100).roundToPlaces(decimalPlaces)}%';
 }
 
-extension ObjectExt<E> on E {
-  R op<R>(R Function(E) f) => f(this);
+extension ObjectExt<T> on T {
+  R op<R>(R Function(T) f) => f(this);
+
+  T opIf(bool condition, T Function(T) f) => condition ? f(this) : this;
 }

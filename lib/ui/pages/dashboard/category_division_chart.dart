@@ -27,7 +27,8 @@ class _CategoryDivisionChartState extends State<CategoryDivisionChart> {
             children: [
               SfCircularChart(
                 palette: entries
-                    .map((e) => e.key.color.withValue(_selectedCategory != null && e.key != _selectedCategory ? 0.5 : 1))
+                    .map((e) => e.key.color.opIf(_selectedCategory != null && e.key != _selectedCategory,
+                        (c) => c.withValue(e.key.color.getValue() * 0.5)))
                     .nullIfEmpty()
                     ?.toList(),
                 series: [
