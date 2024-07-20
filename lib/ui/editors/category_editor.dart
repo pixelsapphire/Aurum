@@ -9,7 +9,6 @@ import 'package:aurum/ui/widgets/icons.dart';
 import 'package:aurum/ui/widgets/list_item.dart';
 import 'package:aurum/util/extensions.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class CategoryEditor extends StatefulWidget {
   final Category? category, parent;
@@ -92,39 +91,7 @@ class _CategoryEditorState extends State<CategoryEditor> {
           barrierDismissible: false,
           builder: (context) => ModalIconInput(
             title: const Text('Category icon'),
-            icons: const [
-              Icons.bakery_dining_outlined,
-              Icons.ramen_dining_outlined,
-              Icons.cookie_outlined,
-              Icons.coffee_outlined,
-              Icons.emoji_food_beverage_outlined,
-              Icons.shopping_bag_outlined,
-              Icons.shopping_cart_outlined,
-              Icons.shopping_cart_checkout_outlined,
-              Icons.cottage_outlined,
-              Icons.electric_bolt_outlined,
-              Icons.devices_outlined,
-              Icons.chair_outlined,
-              Icons.propane_tank_outlined,
-              Icons.handyman_outlined,
-              Icons.emoji_transportation_outlined,
-              Icons.directions_bus_outlined,
-              Icons.local_taxi_outlined,
-              Icons.electric_scooter_outlined,
-              Icons.spa_outlined,
-              Icons.medical_services_outlined,
-              Icons.card_giftcard_outlined,
-              Icons.attractions_outlined,
-              Icons.school_outlined,
-              Icons.attach_money_outlined,
-              Icons.currency_exchange_outlined,
-              Icons.assured_workload_outlined,
-              Icons.percent_outlined,
-              Icons.compare_arrows_outlined,
-              Icons.language_outlined,
-              Icons.cable_outlined,
-              Icons.more_horiz_outlined,
-            ],
+            icons: Category.supportedIcons,
             initialIcon: _icon,
             initialColor: _color,
             onSubmit: (icon, color) => setState(() {

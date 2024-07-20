@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 class Account {
   final String name;
@@ -16,7 +16,8 @@ class Account {
         initialBalance = map['initial_balance'],
         asset = map['asset'] > 0;
 
-  Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() =>
+      {
         'name': name,
         'icon': icon.codePoint,
         'color': color.value,
@@ -25,4 +26,19 @@ class Account {
       };
 
   Account clone() => Account(name, icon, color, initialBalance, asset);
+
+  static const List<IconData> supportedIcons = [
+    Icons.account_balance_wallet_outlined,
+    Icons.payments_outlined,
+    Icons.account_balance_outlined,
+    Icons.payment_outlined,
+    Icons.savings_outlined,
+    Icons.paid_outlined,
+    Icons.health_and_safety_outlined,
+    Icons.hub_outlined,
+    Icons.handshake_outlined,
+    Icons.real_estate_agent_outlined,
+    Icons.currency_exchange_outlined,
+    Icons.category_outlined,
+  ];
 }

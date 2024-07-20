@@ -11,7 +11,6 @@ import 'package:aurum/ui/widgets/icons.dart';
 import 'package:aurum/ui/widgets/list_item.dart';
 import 'package:aurum/util/extensions.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 
 class AccountEditor extends StatefulWidget {
   final Account? account;
@@ -71,20 +70,7 @@ class _AccountEditorState extends State<AccountEditor> {
           barrierDismissible: false,
           builder: (context) => ModalIconInput(
             title: const Text('Account icon'),
-            icons: const [
-              Icons.account_balance_wallet_outlined,
-              Icons.payments_outlined,
-              Icons.account_balance_outlined,
-              Icons.payment_outlined,
-              Icons.savings_outlined,
-              Icons.paid_outlined,
-              Icons.health_and_safety_outlined,
-              Icons.hub_outlined,
-              Icons.handshake_outlined,
-              Icons.real_estate_agent_outlined,
-              Icons.currency_exchange_outlined,
-              Icons.category_outlined,
-            ],
+            icons: Account.supportedIcons,
             initialIcon: _icon,
             initialColor: _color,
             onSubmit: (icon, color) => setState(() {
