@@ -131,9 +131,9 @@ class _RecordEditorState extends State<RecordEditor> {
       _fragments.add(RecordFragment.empty());
     }
     _fromCounterparty = widget.record?.fromCounterpartyId?.op((id) => //
-        Pointer(AurumDatabase.counterparties.getById(id))) ?? Pointer(Future.value(null));
+        Pointer(AurumDatabase.counterparties.getById(id))) ?? Pointer(null);
     _toCounterparty = widget.record?.toCounterpartyId?.op((id) => //
-        Pointer(AurumDatabase.counterparties.getById(id))) ?? Pointer(Future.value(null));
+        Pointer(AurumDatabase.counterparties.getById(id))) ?? Pointer(null);
   }
 
   @override
@@ -323,7 +323,8 @@ class _RecordEditorState extends State<RecordEditor> {
       showErrorMessage(context, 'Account and counterparty must be selected.');
     } else if (_type == RecordType.ownTransfer && (_fromAccountName.value.isEmpty || _toAccountName.value.isEmpty)) {
       showErrorMessage(context, 'Accounts must be selected.');
-    } else if (_fromCounterparty.isNull || _toCounterparty.isNull) {
+    } else if ((_type == RecordType.income && _fromCounterparty.isNull) ||
+        (_type == RecordType.expense && _toCounterparty.isNull)) {
       showErrorMessage(context, 'Counterparty must be selected.');
     } else if (_duplicateCategory()) {
       showErrorMessage(context, 'Record contains multiple divisions with the same category.');
