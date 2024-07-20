@@ -1,16 +1,28 @@
-# aurum
+# Aurum
 
-Aurum
+Aurum is a personal finances tool designed primarily for mobile devices. It helps you track and manage your finances efficiently by organizing transactions, accounts, categories, and counterparties.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- **Accounts Management**: Set up and manage multiple accounts.
+- **Categories**: Define categories for incomes and expenses.
+- **Counterparties**: Manage counterparties involved in your transactions.
+- **Transaction Records**: Add and track transactions with details like time, account, counterparty, amount, and category.
+- **Dashboard**: Visualize your financial data with graphs including:
+    - Balance vs Time
+    - Expenses Pie Chart
+    - Income Pie Chart
+- **Database**: All data is stored locally using SQLite, ensuring your information is secure and accessible offline.
+- **Database Console**: Simple console for database interactions and queries.
+- **Architecture**: Based on the MVVM (Model-View-ViewModel) architectural pattern.
 
-A few resources to get you started if this is your first Flutter project:
+## Future Plans
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Enhanced Dashboard**: Add more graph types and detailed financial insights.
+- **Synchronization**: Support for synchronizing data between multiple devices.
+- **User Authentication**: Secure user authentication for added privacy and data protection.
+- **Improved Database Console**: More advanced database interaction features.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Contributing
+
+At this moment, Aurum is a personal project and not open for public contributions. However, suggestions and feedback are welcome.
