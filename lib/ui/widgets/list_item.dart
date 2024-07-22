@@ -30,6 +30,7 @@ class CupertinoListItem<T> extends StatelessWidget {
 
   // CupertinoListItem.valueOnly & CupertinoListItem.dropdown only
   final FutureOr<String>? value;
+  final String? fallbackValue;
 
   // CupertinoListItem.new & CupertinoListItem.custom only
   final FutureOr<void> Function()? onTap;
@@ -51,6 +52,7 @@ class CupertinoListItem<T> extends StatelessWidget {
     super.key,
     required this.label,
     this.value,
+    this.fallbackValue,
     this.onTap,
   })  : dropdownItems = null,
         itemBuilder = null,
@@ -64,6 +66,7 @@ class CupertinoListItem<T> extends StatelessWidget {
     super.key,
     required this.label,
     this.value,
+    this.fallbackValue,
     required this.dropdownItems,
     required this.itemBuilder,
     required this.onSelected,
@@ -80,6 +83,7 @@ class CupertinoListItem<T> extends StatelessWidget {
     this.isDestructiveAction = false,
     this.onTap,
   })  : value = null,
+        fallbackValue = null,
         dropdownItems = null,
         itemBuilder = null,
         onSelected = null,
@@ -93,6 +97,7 @@ class CupertinoListItem<T> extends StatelessWidget {
     bool chevron = false,
     this.onTap,
   })  : value = null,
+        fallbackValue = null,
         dropdownItems = null,
         itemBuilder = null,
         onSelected = null,
@@ -104,6 +109,7 @@ class CupertinoListItem<T> extends StatelessWidget {
     required BuildContext context,
     required String label,
     FutureOr<String>? value,
+    String? fallbackValue,
     Widget? trailing,
     FutureOr<void> Function()? onTap,
   }) =>
@@ -120,7 +126,7 @@ class CupertinoListItem<T> extends StatelessWidget {
                     child: FutureOrBuilder(
                       future: value,
                       builder: (context, text) => Text(
-                        text.data ?? '',
+                        text.data ?? fallbackValue ?? '',
                         style: TextStyle(color: AurumColors.foregroundSecondary(context)),
                         overflow: TextOverflow.fade,
                         softWrap: false,
@@ -140,6 +146,7 @@ class CupertinoListItem<T> extends StatelessWidget {
         context: context,
         label: label,
         value: value,
+        fallbackValue: fallbackValue,
         trailing: icon != null
             ? Icon(icon, color: isDestructiveAction ? CupertinoColors.systemRed : AurumColors.foregroundPrimary(context))
             : trailing ?? const CupertinoListTileChevron(),
@@ -152,6 +159,7 @@ class CupertinoListItem<T> extends StatelessWidget {
       context: context,
       label: label,
       value: value,
+      fallbackValue: fallbackValue,
       trailing: CupertinoListTileChevron(key: chevronKey),
       onTap: () => showPullDownMenu(
         context: context,
@@ -178,6 +186,7 @@ class CupertinoListItem<T> extends StatelessWidget {
         context: context,
         label: label,
         value: value,
+        fallbackValue: fallbackValue,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [trailing!, const Padding(padding: EdgeInsets.only(left: 4), child: CupertinoListTileChevron())],

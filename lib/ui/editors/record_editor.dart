@@ -42,7 +42,8 @@ class RecordFragmentSection extends StatelessWidget {
         onEmpty: const CupertinoListItem.basic(label: 'Category'),
         builder: (context, categories) => CupertinoListItem.dropdown(
           label: 'Category',
-          value: cachedCategory?.name ?? 'Select category',
+          value: cachedCategory?.name ?? AurumDatabase.categories.getById(fragment.categoryId).then((c) => c.name),
+          fallbackValue: 'Select category',
           dropdownItems: categories.sorted(CategoriesService.compareNames),
           itemBuilder: (category) => CupertinoDropdownItem(
             title: category.name,
