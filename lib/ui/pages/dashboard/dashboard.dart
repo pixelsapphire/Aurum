@@ -60,6 +60,15 @@ class _DashboardState extends State<Dashboard> {
                       style: const TextStyle(fontSize: 36),
                     ),
                   ),
+                  AurumDerivedValueBuilder(
+                    value: AurumDatabase.assetsBalance,
+                    builder: (context, balance) => MoneyLabel(
+                      balance ?? 0,
+                      prefix: '(in assets: ',
+                      suffix: ' PLN)',
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
                 ],
               ),
               Column(

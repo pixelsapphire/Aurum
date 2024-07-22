@@ -165,14 +165,20 @@ class AurumDatabase {
         ),
       );
 
+  static double? _balance([bool Function(Account)? accountFilter]) => accounts.value?.data
+      ?.opIf(accountFilter != null, (accounts) => accounts.where((account) => account.asset).toList())
+      .map((account) => records.value?.data?.op((records) => AccountsService.accountBalance(account, records)) ?? 0)
+      .fold<double>(0, (totalBalance, accountBalance) => totalBalance + accountBalance)
+      .roundToPlaces(2);
+
+  static final AurumDerivedValue<double> assetsBalance = AurumDerivedValue(
+    dependencies: [accounts, records],
+    getter: () => _balance((account) => account.asset) ?? 0,
+  );
+
   static final AurumDerivedValue<double> totalBalance = AurumDerivedValue(
     dependencies: [accounts, records],
-    getter: () =>
-        accounts.value?.data
-            ?.map((account) => records.value?.data?.op((records) => AccountsService.accountBalance(account, records)) ?? 0)
-            .fold<double>(0, (totalBalance, accountBalance) => totalBalance + accountBalance)
-            .roundToPlaces(2) ??
-        0,
+    getter: () => _balance() ?? 0,
   );
 
   static final AurumDerivedValue<LinkedHashMap<DateTime, double>> balanceOverTimeGrouped = AurumDerivedValue(
