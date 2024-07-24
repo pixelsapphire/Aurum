@@ -1,10 +1,10 @@
 import 'package:aurum/data/database.dart';
 import 'package:aurum/data/objects/account.dart';
 import 'package:aurum/ui/editors/account_editor.dart';
-import 'package:aurum/ui/pages/more/more.dart';
 import 'package:aurum/ui/pages/page_base.dart';
 import 'package:aurum/ui/widgets/database_builders.dart';
 import 'package:aurum/ui/widgets/icons.dart';
+import 'package:aurum/ui/widgets/placeholder.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
