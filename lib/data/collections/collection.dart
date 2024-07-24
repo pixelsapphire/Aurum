@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -19,6 +20,7 @@ abstract class AurumCollection<T> extends ValueNotifier<QueryResult<List<T>>?> {
   final Future<Database> database;
   final List<String> tables;
   final void Function(Database) creator;
+  final Completer<void> _initialized;
 
   @protected
   Future<List<T>> getter();
@@ -32,22 +34,25 @@ abstract class AurumCollection<T> extends ValueNotifier<QueryResult<List<T>>?> {
   @protected
   Future<void> updater(T oldItem, T newItem);
 
+  void notifyInitialized() => _initialized.complete();
+
   AurumCollection({
     required this.database,
     required this.tables,
     required this.creator,
-  }) : super(null) {
+  })  : _initialized = Completer<void>(),
+        super(null) {
     refresh();
   }
 
-  void refresh() => getter().then(
+  void refresh() => _initialized.future.then((_) => getter().then(
         (values) => value = QueryResult.withData(values),
         onError: (error) => value = QueryResult.withError(error),
-      );
+      ));
 
-  Future<void> insert(T value) => inserter(value).then((_) => refresh());
+  Future<void> insert(T value) => _initialized.future.then((_) => inserter(value).then((_) => refresh()));
 
-  Future<void> update(T old, T updated) => updater(old, updated).then((_) => refresh());
+  Future<void> update(T old, T updated) => _initialized.future.then((_) => updater(old, updated).then((_) => refresh()));
 
-  Future<void> delete(T value) => deleter(value).then((_) => refresh());
+  Future<void> delete(T value) => _initialized.future.then((_) => deleter(value).then((_) => refresh()));
 }

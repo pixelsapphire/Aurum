@@ -75,6 +75,7 @@ class AurumDatabase {
               where: 'type=? AND name IN (${List.filled(collection.tables.length, '?').join(',')})',
               whereArgs: ['table', ...collection.tables])
           .then((rows) => rows.isEmpty, onError: (error) => true)) collection.creator(db);
+      collection.notifyInitialized();
     }
     for (String tableName in (await db
         .query('sqlite_master', columns: ['name'], where: 'type=?', whereArgs: ['table'])
