@@ -19,7 +19,20 @@ class _ConsoleState extends State<Console> {
   final TextEditingController _inputController = TextEditingController();
 
   bool _execute(String command) {
-    if (command == 'clear') {
+    if (command == 'help') {
+      _log.add((
+        EntryType.response,
+        'Any SQLite select, DML & DDL commands can be executed. Standard SQLite syntax applies. '
+            'On application startup, a basic integrity check is performed so any missing tables will be re-generated '
+            'and any additional tables will be removed. SQLite dot-commands are not supported.'
+            '''
+\nList of additional Aurum commands:
+- clear: clears the console
+- help: displays this help message
+- reload: refreshes all collections (this is needed after manual changes in the database)''',
+      ));
+      return true;
+    } else if (command == 'clear') {
       setState(() => _log.clear());
       return true;
     } else if (command == 'reload') {
