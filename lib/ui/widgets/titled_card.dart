@@ -18,13 +18,13 @@ class TitledCard extends StatelessWidget {
   final String title;
   final Widget child;
   final TextAlign titleAlignment;
-  final HorizontalAlignment childAlignment;
+  final HorizontalAlignment alignment;
 
   const TitledCard({
     super.key,
     required this.title,
     this.titleAlignment = TextAlign.start,
-    this.childAlignment = HorizontalAlignment.center,
+    this.alignment = HorizontalAlignment.center,
     required this.child,
   });
 
@@ -48,7 +48,7 @@ class TitledCard extends StatelessWidget {
                   ),
                 ),
                 const Separator(direction: SeparatorDirection.horizontal),
-                Align(alignment: childAlignment.alignment, heightFactor: 1, child: child),
+                Align(alignment: alignment.alignment, heightFactor: 1, child: child),
               ],
             ),
           ),

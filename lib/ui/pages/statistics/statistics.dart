@@ -14,7 +14,7 @@ class Statistics extends StatelessWidget {
 
   Widget _buildAverage(BuildContext context) => TitledCard(
         title: 'Average daily expenses',
-        childAlignment: HorizontalAlignment.start,
+        alignment: HorizontalAlignment.start,
         child: Column(
           children: [
             AurumDerivedValueBuilder(

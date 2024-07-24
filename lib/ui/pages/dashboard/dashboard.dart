@@ -27,10 +27,7 @@ class _DashboardState extends State<Dashboard> {
         builder: (context, value) => GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: MediaQuery.of(context).orientation == Orientation.portrait ? 2 : 4,
-            childAspectRatio: 1.5,
-          ),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.5),
           itemCount: value.length,
           itemBuilder: (context, index) => AccountView(account: value[index]),
         ),
@@ -130,14 +127,21 @@ class _DashboardState extends State<Dashboard> {
       );
 
   @override
-  Widget build(BuildContext context) => PageBase(
-        child: Column(
-          children: [
-            _buildAccounts(context),
-            TitledCard(title: 'Balance', childAlignment: HorizontalAlignment.start, child: _buildBalance(context)),
-            TitledCard(title: 'Monthly expenses', childAlignment: HorizontalAlignment.start, child: _buildExpenses(context)),
-            TitledCard(title: 'Monthly income', childAlignment: HorizontalAlignment.start, child: _buildIncomes(context)),
-          ],
-        ),
-      );
+  Widget build(BuildContext context) {
+    final accounts = _buildAccounts(context);
+    final balance = TitledCard(title: 'Balance', child: _buildBalance(context));
+    final expenses = TitledCard(title: 'Monthly expenses', child: _buildExpenses(context));
+    final incomes = TitledCard(title: 'Monthly income', child: _buildIncomes(context));
+    return PageBase(
+      child: MediaQuery.of(context).orientation == Orientation.portrait
+          ? Column(children: [accounts, balance, expenses, incomes])
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: Column(children: [accounts, balance])),
+                Expanded(child: Column(children: [expenses, incomes]))
+              ],
+            ),
+    );
+  }
 }

@@ -66,12 +66,14 @@ class AccountView extends StatelessWidget {
             EmptyListPlaceholder(
               icon: Icons.wallet_outlined,
               title: 'No accounts',
-              message: Row(
-                children: [
-                  Text('You can add an account by going to '),
-                  Text('More > Accounts', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(' or by tapping here.'),
-                ],
+              message: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'You can add an account by going to '),
+                    TextSpan(text: 'More > Accounts', style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: ' or by tapping here.'),
+                  ],
+                ),
               ),
             ),
           ],
