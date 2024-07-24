@@ -138,14 +138,14 @@ class AurumDatabase {
       final accounts_ = accounts.value?.data;
       final Map<DateTime, double> changeDaily = {};
       final LinkedHashMap<DateTime, double> balanceOverTime = LinkedHashMap();
-      if (records_ != null && accounts_ != null) {
-        for (final record in records_) {
+      if (records_?.nullIfEmpty() != null && accounts_?.nullIfEmpty() != null) {
+        for (final record in records_!) {
           if (record.type != RecordType.ownTransfer) {
             changeDaily[record.time.date] = (changeDaily[record.time.date] ?? 0) + RecordsService.totalAmount(record);
           }
         }
         final DateTime firstDay = records_.min((r) => r.time).time.date;
-        balanceOverTime[firstDay.previousDay] = accounts_.fold(0, (total, account) => total + account.initialBalance);
+        balanceOverTime[firstDay.previousDay] = accounts_!.fold(0, (total, account) => total + account.initialBalance);
         for (final DateTime day in TimePeriod.untilToday(fromTime: firstDay).days()) {
           balanceOverTime[day] = (balanceOverTime[day.previousDay]! + (changeDaily[day] ?? 0)).roundToPlaces(2);
         }

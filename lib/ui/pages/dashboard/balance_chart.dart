@@ -31,7 +31,7 @@ class BalanceChart extends StatelessWidget {
       builder: (context, data) {
         if (data == null) return const SizedBox();
         final dataSource = data.entries.where((e) => e.key > DateTime.now().previousMonth.date).toList();
-        final interval = data.isNotEmpty ? chartInterval(range: data.values.max(), preferredTicks: 3.5).toDouble() : null;
+        final interval = data.isNotEmpty ? chartInterval(range: data.values.max(), preferredTicks: 3.5)?.toDouble() : null;
         return SfCartesianChart(
           primaryXAxis: DateTimeAxis(
             dateFormat: DateFormat('dd MMM'),
