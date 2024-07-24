@@ -27,7 +27,7 @@ class Counterparties extends StatelessWidget {
         ),
         child: AurumCollectionBuilder(
           collection: AurumDatabase.counterparties,
-          onEmpty: const EmptyListPlaceholder(
+          onEmpty: const EmptyListPlaceholder.withCreateIcon(
             icon: Icons.person_outlined,
             title: 'No counterparties',
             messageBeforeIcon: 'You can add an account by tapping the ',

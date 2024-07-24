@@ -6,6 +6,7 @@ import 'package:aurum/ui/pages/history/transaction_view.dart';
 import 'package:aurum/ui/pages/page_base.dart';
 import 'package:aurum/ui/widgets/database_builders.dart';
 import 'package:aurum/ui/widgets/dialogs/modal_message.dart';
+import 'package:aurum/ui/widgets/placeholder.dart';
 import 'package:aurum/util/extensions.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -100,6 +101,13 @@ class _HistoryState extends State<History> {
   @override
   Widget build(BuildContext context) => AurumCollectionBuilder(
         collection: AurumDatabase.records,
+        onEmpty: const EmptyListPlaceholder.withCreateIcon(
+          icon: CupertinoIcons.clock,
+          title: 'No records',
+          messageBeforeIcon: 'You can add records by tapping the ',
+          createIcon: CupertinoIcons.add_circled,
+          messageAfterIcon: ' button.',
+        ),
         builder: (context, records) => PageBase(
           navigationBar: _buildNavigationBar(context, records),
           builtInScrollView: false,

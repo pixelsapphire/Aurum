@@ -24,7 +24,7 @@ class Accounts extends StatelessWidget {
         ),
         child: AurumCollectionBuilder(
           collection: AurumDatabase.accounts,
-          onEmpty: const EmptyListPlaceholder(
+          onEmpty: const EmptyListPlaceholder.withCreateIcon(
             icon: Icons.wallet_outlined,
             title: 'No accounts',
             messageBeforeIcon: 'You can add an account by tapping the ',

@@ -27,7 +27,7 @@ class Categories extends StatelessWidget {
         ),
         child: AurumCollectionBuilder(
           collection: AurumDatabase.categories,
-          onEmpty: const EmptyListPlaceholder(
+          onEmpty: const EmptyListPlaceholder.withCreateIcon(
             icon: Icons.category_outlined,
             title: 'No categories',
             messageBeforeIcon: 'You can add a category by tapping the ',
