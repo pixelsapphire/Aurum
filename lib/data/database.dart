@@ -60,26 +60,23 @@ void showDatabaseError(BuildContext context, dynamic error, {String? duplicateMe
 class AurumDatabase {
   static final Future<Database> _db = getDatabasesPath().then((path) => openDatabase(
         join(path, 'aurum.db'),
-        onOpen: (db) {
-          _verifyStructuralIntegrity(db);
-        },
+        onOpen: (db) => _verifyStructuralIntegrity(db),
         version: 9,
       ));
   static final List<AurumCollection> _collections = [accounts, categories, counterparties, records];
 
   static Future<void> _verifyStructuralIntegrity(Database db) async {
     for (AurumCollection collection in _collections) {
-      if (await db
-          .query('sqlite_master',
-              columns: ['name'],
-              where: 'type=? AND name IN (${List.filled(collection.tables.length, '?').join(',')})',
-              whereArgs: ['table', ...collection.tables])
-          .then((rows) => rows.isEmpty, onError: (error) => true)) collection.creator(db);
+      final presentTable = db.query('sqlite_master',
+          columns: ['name'],
+          where: 'type=? AND name IN (${List.filled(collection.tables.length, '?').join(',')})',
+          whereArgs: ['table', ...collection.tables]);
+      if (await presentTable.then((rows) => rows.isEmpty, onError: (error) => true)) collection.creator(db);
       collection.notifyInitialized();
     }
-    for (String tableName in (await db
-        .query('sqlite_master', columns: ['name'], where: 'type=?', whereArgs: ['table'])
-        .then((rows) => rows.map((row) => row['name'] as String).toList()))) {
+    final List<String> tables = await (db.query('sqlite_master', columns: ['name'], where: 'type=?', whereArgs: ['table']))
+        .then((rows) => rows.map((row) => row['name'] as String).toList());
+    for (String tableName in tables) {
       if (!(tableName == 'sqlite_sequence' || _collections.any((collection) => collection.tables.contains(tableName)))) {
         db.execute('DROP TABLE $tableName');
       }
@@ -92,12 +89,10 @@ class AurumDatabase {
     }
   }
 
-  static Future<String> executeRaw(String sql) => _db.then((db) => db.rawQuery(sql)).then(
-        (rows) => (sql.trim().toLowerCase())
-                .op((sql) => ['insert', 'update', 'delete', 'create', 'alter', 'drop'].any((dml) => sql.startsWith(dml)))
-            ? 'Operation completed successfully.'
-            : rows.toString(),
-      );
+  static Future<String> executeRaw(String sql) => _db.then((db) => db.rawQuery(sql)).then((rows) => (sql.trim().toLowerCase())
+          .op((sql) => ['insert', 'update', 'delete', 'create', 'alter', 'drop'].any((dml) => sql.startsWith(dml)))
+      ? 'Operation completed successfully.'
+      : rows.toString());
 
   static final AccountsCollection accounts = AccountsCollection(database: _db);
   static final CategoriesCollection categories = CategoriesCollection(database: _db);
