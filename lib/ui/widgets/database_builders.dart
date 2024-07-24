@@ -1,3 +1,4 @@
+import 'package:aurum/data/collections/collection.dart';
 import 'package:aurum/data/database.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -56,10 +57,10 @@ class AurumFutureBuilder<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ValueListenableBuilder(
-    valueListenable: notifier,
-    builder: (context, _, __) => FutureBuilder(
-      future: future(),
-      builder: builder,
-    ),
-  );
+        valueListenable: notifier,
+        builder: (context, _, __) => FutureBuilder(
+          future: future(),
+          builder: builder,
+        ),
+      );
 }

@@ -1,4 +1,4 @@
-import 'package:aurum/data/database.dart';
+import 'package:aurum/data/collections/collection.dart';
 import 'package:aurum/data/objects/counterparty.dart';
 
 class CounterpartiesCollection extends AurumCollection<Counterparty> {
