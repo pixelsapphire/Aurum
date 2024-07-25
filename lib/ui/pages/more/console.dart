@@ -2,8 +2,11 @@ import 'package:aurum/data/database.dart';
 import 'package:aurum/ui/pages/page_base.dart';
 import 'package:aurum/ui/theme.dart';
 import 'package:aurum/ui/widgets/placeholder.dart';
+import 'package:aurum/util/extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:pull_down_button/pull_down_button.dart';
 
 enum EntryType { command, response, error }
 
@@ -92,7 +95,7 @@ class _ConsoleState extends State<Console> {
                 Expanded(
                   child: Container(
                     color: AurumColors.backgroundTertiary(context),
-                    child: Padding(padding: const EdgeInsets.all(2), child: SelectableText(text)),
+                    child: Padding(padding: const EdgeInsets.all(2), child: _ConsoleMessage(text)),
                   ),
                 ),
               ],
@@ -102,10 +105,7 @@ class _ConsoleState extends State<Console> {
               padding: const EdgeInsets.only(left: 10),
               child: DecoratedBox(
                 decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 4))),
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 14),
-                  child: SelectableText(text, style: TextStyle(color: color)),
-                ),
+                child: Padding(padding: const EdgeInsets.only(left: 14), child: _ConsoleMessage(text, color: color)),
               ),
             );
           }
@@ -156,5 +156,69 @@ class _ConsoleState extends State<Console> {
             _buildInput(context),
           ],
         ),
+      );
+}
+
+class _ConsoleMessage extends StatefulWidget {
+  final String text;
+  final Color? color;
+
+  const _ConsoleMessage(this.text, {this.color});
+
+  @override
+  State<_ConsoleMessage> createState() => _ConsoleMessageState();
+}
+
+class _ConsoleMessageState extends State<_ConsoleMessage> {
+  final FocusNode _selectableNode = FocusNode();
+  final GlobalKey _key = GlobalKey();
+  bool _selectable = false;
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        key: _key,
+        child: _selectable
+            ? Focus(
+                focusNode: _selectableNode,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(border: Border.all(color: AurumColors.foregroundSecondary(context), width: 1)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: SelectableText(widget.text, style: TextStyle(color: widget.color)),
+                  ),
+                ),
+                onFocusChange: (focus) => setState(() => _selectable = focus),
+              )
+            : GestureDetector(
+                onLongPress: () async {
+                  showPullDownMenu(
+                    context: context,
+                    items: [
+                      PullDownMenuItem(
+                        title: 'Copy',
+                        icon: CupertinoIcons.doc_on_clipboard,
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: widget.text));
+                          HapticFeedback.lightImpact();
+                        },
+                      ),
+                      PullDownMenuItem(
+                        title: 'Select',
+                        icon: CupertinoIcons.text_cursor,
+                        onTap: () => setState(() {
+                          _selectable = true;
+                          _selectableNode.requestFocus();
+                        }),
+                      )
+                    ],
+                    position: (_key.currentContext!.findRenderObject() as RenderBox).bottomRight.translate(-2, 8),
+                  );
+                  await HapticFeedback.heavyImpact();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Text(widget.text, style: TextStyle(color: widget.color)),
+                ),
+              ),
       );
 }
