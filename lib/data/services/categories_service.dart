@@ -3,6 +3,10 @@ import 'package:aurum/data/objects/category.dart';
 class CategoriesService {
   CategoriesService._();
 
+  static bool isChildOf(Category category, Category parent, List<Category> categories) =>
+      category.parentId == parent.id ||
+      (category.parentId != null && isChildOf(categories.firstWhere((c) => c.id == category.parentId), parent, categories));
+
   static String getPath(Category category, List<Category> categories, {String separator = '\uffff'}) {
     final parent = categories.firstWhere((c) => c.id == category.parentId, orElse: () => category);
     return parent == category ? category.name : '${getPath(parent, categories)}$separator${category.name}';

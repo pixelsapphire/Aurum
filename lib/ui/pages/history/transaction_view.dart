@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'package:aurum/data/auxiliary/history_entry.dart';
+import 'package:aurum/data/auxiliary/history_objects.dart';
 import 'package:aurum/data/database.dart';
 import 'package:aurum/data/objects/record.dart';
 import 'package:aurum/data/services/records_service.dart';

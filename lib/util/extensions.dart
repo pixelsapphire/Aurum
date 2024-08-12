@@ -14,7 +14,13 @@ extension NavigatorExt on NavigatorState {
 }
 
 extension RenderBoxExt on RenderBox {
+  Rect get topRight => localToGlobal(Offset(0, -size.height)) & size;
+
   Rect get bottomRight => localToGlobal(Offset.zero) & size;
+}
+
+extension GlobalKeyExt on GlobalKey {
+  RenderBox get renderBox => currentContext?.findRenderObject() as RenderBox;
 }
 
 extension ColorExt on Color {
