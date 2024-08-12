@@ -89,10 +89,10 @@ class AurumDatabase {
     }
   }
 
-  static Future<String> executeRaw(String sql) => _db.then((db) => db.rawQuery(sql)).then((rows) => (sql.trim().toLowerCase())
+  static Future<dynamic> executeRaw(String sql) => _db.then((db) => db.rawQuery(sql)).then((rows) => (sql.trim().toLowerCase())
           .op((sql) => ['insert', 'update', 'delete', 'create', 'alter', 'drop'].any((dml) => sql.startsWith(dml)))
       ? 'Operation completed successfully.'
-      : rows.toString());
+      : rows);
 
   static final AccountsCollection accounts = AccountsCollection(database: _db);
   static final CategoriesCollection categories = CategoriesCollection(database: _db);

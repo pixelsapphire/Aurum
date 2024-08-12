@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pull_down_button/pull_down_button.dart';
 
-enum EntryType { command, response, error }
+enum EntryType { command, response, data, error }
 
-final List<(EntryType, String)> _log = [];
+final List<(EntryType, dynamic)> _log = [];
 
 class Console extends StatefulWidget {
   const Console({super.key});
@@ -86,7 +86,7 @@ class _ConsoleState extends State<Console> {
   Widget _buildLog(BuildContext context) => ListView.builder(
         itemCount: _log.length,
         itemBuilder: (context, index) {
-          final (type, text) = _log[index];
+          final (type, result) = _log[index];
           final Color color = type == EntryType.error ? CupertinoColors.systemRed : AurumColors.foregroundPrimary(context);
           if (type == EntryType.command) {
             return Row(
@@ -95,17 +95,25 @@ class _ConsoleState extends State<Console> {
                 Expanded(
                   child: Container(
                     color: AurumColors.backgroundTertiary(context),
-                    child: Padding(padding: const EdgeInsets.all(2), child: _ConsoleMessage(text)),
+                    child: Padding(padding: const EdgeInsets.all(2), child: _ConsoleMessage(result)),
                   ),
                 ),
               ],
+            );
+          } else if (type == EntryType.data) {
+            return Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: DecoratedBox(
+                decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 4))),
+                child: Padding(padding: const EdgeInsets.only(left: 14), child: _DataTable(result)),
+              ),
             );
           } else {
             return Padding(
               padding: const EdgeInsets.only(left: 10),
               child: DecoratedBox(
                 decoration: BoxDecoration(border: Border(left: BorderSide(color: color, width: 4))),
-                child: Padding(padding: const EdgeInsets.only(left: 14), child: _ConsoleMessage(text, color: color)),
+                child: Padding(padding: const EdgeInsets.only(left: 14), child: _ConsoleMessage(result, color: color)),
               ),
             );
           }
@@ -135,7 +143,7 @@ class _ConsoleState extends State<Console> {
                 final bool handled = _execute(_inputController.text);
                 if (!handled) {
                   AurumDatabase.executeRaw(_inputController.text).then(
-                    (response) => setState(() => _log.add((EntryType.response, response))),
+                    (result) => setState(() => _log.add((result is String ? EntryType.response : EntryType.data, result))),
                     onError: (error) => setState(() => _log.add((EntryType.error, error.toString()))),
                   );
                 }
@@ -221,4 +229,31 @@ class _ConsoleMessageState extends State<_ConsoleMessage> {
                 ),
               ),
       );
+}
+
+class _DataTable extends StatelessWidget {
+  final List<Map<String, Object?>> data;
+
+  const _DataTable(this.data);
+
+  @override
+  Widget build(BuildContext context) {
+    final List<DataColumn> columns = data.first.keys.map((c) => DataColumn(label: Text(c))).toList();
+    final List<DataRow> rows =
+        data.map((r) => DataRow(cells: r.values.map((v) => DataCell(Text(v.toString()))).toList())).toList();
+    final TextStyle style = CupertinoTheme.of(context).textTheme.textStyle;
+    final double rowHeight = style.fontSize! + 12;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columns: columns,
+        rows: rows,
+        headingTextStyle: style.copyWith(fontWeight: FontWeight.bold),
+        dataTextStyle: style,
+        dataRowMinHeight: rowHeight,
+        dataRowMaxHeight: rowHeight,
+        headingRowHeight: rowHeight,
+      ),
+    );
+  }
 }
