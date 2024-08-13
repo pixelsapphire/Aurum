@@ -19,7 +19,7 @@ double median<E extends num>(Iterable<E> values) {
 
 int? chartInterval({required double range, required double preferredTicks}) {
   if (range == 0) return null;
-  final List<double> intervals = [1, 2.5, 5, 10, 25, 50];
+  const List<double> intervals = [1, 2.5, 5, 10, 25, 50];
   final int power = pow(10, (log(range) / ln10).floor() - 1).round();
   double bestCandidate = 0, bestDelta = double.infinity;
   for (final interval in intervals) {

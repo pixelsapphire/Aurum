@@ -94,6 +94,12 @@ extension ListExt<E> on List<E> {
 }
 
 extension MapExt<K, V> on Map<K, V> {
+  Map<K, V> where(bool Function(K, V) predicate) => Map.fromEntries(entries.where((e) => predicate(e.key, e.value)));
+
+  Map<K, V> whereKey(bool Function(K) predicate) => Map.fromEntries(entries.where((e) => predicate(e.key)));
+
+  Map<K, V> whereValue(bool Function(V) predicate) => Map.fromEntries(entries.where((e) => predicate(e.value)));
+
   String toMultilineString({String Function(K)? keyMapper, String Function(V)? valueMapper}) =>
       '{\n${entries.map((entry) => '  ${keyMapper?.call(entry.key) ?? entry.key}: ${valueMapper?.call(entry.value) ?? entry.value}').join('\n')}\n}';
 }

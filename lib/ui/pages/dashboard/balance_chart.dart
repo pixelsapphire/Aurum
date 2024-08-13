@@ -28,10 +28,11 @@ class BalanceChart extends StatelessWidget {
     );
     return AurumDerivedValueBuilder(
       value: source,
-      builder: (context, data) {
-        if (data == null) return const SizedBox();
-        final dataSource = data.entries.where((e) => e.key > DateTime.now().previousMonth.date).toList();
-        final interval = data.isNotEmpty ? chartInterval(range: data.values.max(), preferredTicks: 3.5)?.toDouble() : null;
+      builder: (context, sourceData) {
+        if (sourceData == null) return const SizedBox();
+        final data = sourceData.whereKey((time) => time > DateTime.now().previousMonth.date);
+        final range = data.isNotEmpty ? data.values.max() - min(data.values.min(), 0.0) : 0.0;
+        final interval = data.isNotEmpty ? chartInterval(range: range, preferredTicks: 3.5)?.toDouble() : null;
         return SfCartesianChart(
           primaryXAxis: DateTimeAxis(
             dateFormat: DateFormat('dd MMM'),
@@ -41,6 +42,7 @@ class BalanceChart extends StatelessWidget {
             labelStyle: TextStyle(color: AurumColors.foregroundSecondary(context)),
           ),
           primaryYAxis: NumericAxis(
+            minimum: interval != null ? (data.values.min() / interval).floor() * interval : null,
             maximum: interval != null ? (data.values.max() / interval).ceil() * interval : null,
             interval: interval,
             labelStyle: TextStyle(color: AurumColors.foregroundSecondary(context)),
@@ -49,7 +51,7 @@ class BalanceChart extends StatelessWidget {
             SplineAreaSeries<MapEntry<DateTime, double>, DateTime>(
               splineType: smooth ? SplineType.monotonic : SplineType.cardinal,
               cardinalSplineTension: 0.33,
-              dataSource: dataSource,
+              dataSource: data.entries.toList(),
               xValueMapper: (entry, _) => entry.key,
               yValueMapper: (entry, _) => entry.value,
               animationDuration: 0,
